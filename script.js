@@ -3,7 +3,16 @@ const CLIENT_ID = "1407820802203848734"
 function getCookie(name) {
   const value = `; ${document.cookie}`
   const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return decodeURIComponent(parts.pop().split(";").shift())
+  if (parts.length === 2) {
+    const cookie = parts.pop().split(';').shift()
+    try {
+      return decodeURIComponent(cookie)
+    } catch (e) {
+      console.error('Cookie decode error:', e)
+      return null
+    }
+  }
+  return null
 }
 
 function loadUser() {
@@ -11,7 +20,10 @@ function loadUser() {
   const authDiv = document.getElementById("auth")
   const appDiv = document.getElementById("app")
 
+  console.log("User cookie:", userCookie)
+
   if (!userCookie) {
+    console.log("No user cookie found")
     authDiv.style.display = "block"
     appDiv.style.display = "none"
     return
@@ -19,15 +31,22 @@ function loadUser() {
 
   try {
     const user = JSON.parse(userCookie)
+    console.log("Parsed user data:", user)
+
+    if (!user.id) {
+      throw new Error("Invalid user data")
+    }
+
     authDiv.style.display = "none"
     appDiv.style.display = "block"
     
     document.getElementById("username").innerText = user.global_name || user.username
     document.getElementById("avatar").src = user.avatar 
-        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` 
-        : 'https://cdn.discordapp.com/embed/avatars/0.png'
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` 
+      : 'https://cdn.discordapp.com/embed/avatars/0.png'
   } catch (error) {
     console.error("Error parsing user cookie:", error)
+    document.cookie = "user=; Path=/; Max-Age=0"
     authDiv.style.display = "block"
     appDiv.style.display = "none"
   }

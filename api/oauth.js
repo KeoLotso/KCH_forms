@@ -20,22 +20,27 @@ export default async function handler(req, res) {
     })
 
     const tokenData = await tokenResponse.json()
-    if (tokenData.error) return res.status(400).json(tokenData)
+    if (!tokenResponse.ok) throw new Error(tokenData.error)
 
     const userResponse = await fetch("https://discord.com/api/users/@me", {
       headers: { Authorization: `Bearer ${tokenData.access_token}` }
     })
 
     const user = await userResponse.json()
+    if (!userResponse.ok) throw new Error("Failed to get user data")
 
-    res.setHeader(
-      "Set-Cookie",
-      `user=${encodeURIComponent(JSON.stringify(user))}; Path=/; HttpOnly; Secure; SameSite=Lax`
-    )
+    const cookieOptions = [
+      `user=${encodeURIComponent(JSON.stringify(user))}`,
+      'Path=/',
+      'Max-Age=604800',
+      'SameSite=Lax',
+      'Secure'
+    ].join('; ')
 
-    res.redirect("/")
+    res.setHeader('Set-Cookie', cookieOptions)
+    res.redirect('/')
   } catch (err) {
-    console.error(err)
-    res.status(500).send("OAuth failed")
+    console.error('OAuth Error:', err)
+    res.redirect('/?error=auth_failed')
   }
 }
