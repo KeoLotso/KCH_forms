@@ -1,34 +1,57 @@
+import formidable from 'formidable';
 import fetch from "node-fetch";
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { type, answers, user } = req.body;
-  let webhookUrl;
+  const form = new formidable.IncomingForm({ multiples: true });
+  
+  form.parse(req, async (err, fields, files) => {
+    if (err) return res.status(500).json({ error: "Failed to parse form data" });
 
-  switch (type) {
-    case "ban_appeal": webhookUrl = process.env.BAN_APPEAL; break;
-    case "custom_channel": webhookUrl = process.env.CUSTOM_CHANNEL; break;
-    case "mod_app": webhookUrl = process.env.MOD_APPLICATION; break;
-    default: return res.status(400).json({ error: "Invalid type" });
-  }
+    const { type } = fields;
+    const answers = JSON.parse(fields.answers);
+    const images = files.images || [];
 
-  const embed = {
-    title: `${type.replace("_", " ").toUpperCase()} Submission`,
-    fields: Object.entries(answers).map(([k, v]) => ({ name: k, value: String(v).slice(0, 1024) })),
-    timestamp: new Date().toISOString(),
-    author: {
-      name: user.global_name || user.username,
-      icon_url: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : undefined
-    },
-    footer: { text: `User ID: ${user.id}` }
-  };
+    let webhookUrl;
+    switch (type) {
+      case "custom_channel": webhookUrl = process.env.CUSTOM_CHANNEL; break;
+      case "ban_appeal": webhookUrl = process.env.BAN_APPEAL; break;
+      case "mod_app": webhookUrl = process.env.MOD_APPLICATION; break;
+      default: return res.status(400).json({ error: "Invalid type" });
+    }
 
-  await fetch(webhookUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ embeds: [embed] })
+    const formData = new FormData();
+    const embed = {
+      title: `${type.replace("_", " ").toUpperCase()} Submission`,
+      fields: Object.entries(answers).map(([k, v]) => ({ 
+        name: k, 
+        value: String(v).slice(0, 1024) 
+      })),
+      timestamp: new Date().toISOString()
+    };
+
+    formData.append("payload_json", JSON.stringify({
+      embeds: [embed]
+    }));
+
+    if (Array.isArray(images)) {
+      images.forEach((image, i) => {
+        formData.append(`file${i}`, image);
+      });
+    }
+
+    await fetch(webhookUrl, {
+      method: "POST",
+      body: formData
+    });
+
+    res.json({ ok: true });
   });
-
-  res.json({ ok: true });
 }

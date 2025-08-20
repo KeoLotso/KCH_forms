@@ -55,21 +55,20 @@ function loadUser() {
 const FORM_QUESTIONS = {
   ban_appeal: [
     { name: "reason", label: "Why were you banned?", type: "text" },
-    { name: "duration", label: "How long have you been banned?", type: "text" },
     { name: "reflection", label: "What have you learned from this experience?", type: "textarea" },
     { name: "prevention", label: "How will you prevent this from happening again?", type: "textarea" }
   ],
   custom_channel: [
-    { name: "channel_name", label: "Desired channel name", type: "text" },
-    { name: "channel_topic", label: "Channel topic/purpose", type: "text" },
-    { name: "channel_description", label: "Detailed description of your channel", type: "textarea" },
-    { name: "activity_plans", label: "How will you keep the channel active?", type: "textarea" }
+    { name: "channel_name", label: "Channel name (emojies are not allowed)", type: "text" },
+    { name: "channel_posts", label: "What will you post", type: "text" },
+    { name: "channel_description", label: "Why do you think you are perfect for an Custom Channel", type: "textarea" },
+    { name: "channel_images", label: "Upload example images (up to 10)", type: "file", multiple: true }
   ],
   mod_app: [
     { name: "age", label: "How old are you?", type: "text" },
     { name: "timezone", label: "What is your timezone?", type: "text" },
     { name: "experience", label: "Previous moderation experience", type: "textarea" },
-    { name: "availability", label: "How many hours per week can you dedicate?", type: "text" },
+    { name: "availability", label: "How active are you in the KCH server", type: "text" },
     { name: "motivation", label: "Why do you want to be a moderator?", type: "textarea" }
   ]
 };
@@ -90,8 +89,37 @@ function renderQuestions(type) {
     input.name = question.name;
     input.className = "question";
     
-    wrapper.appendChild(label);
-    wrapper.appendChild(input);
+    if (question.type === "file") {
+      input.multiple = question.multiple;
+      input.accept = "image/*";
+      const preview = document.createElement("div");
+      preview.className = "image-preview";
+      
+      input.addEventListener("change", () => {
+        preview.innerHTML = "";
+        if (input.files.length > 10) {
+          alert("Maximum 10 images allowed");
+          input.value = "";
+          return;
+        }
+        Array.from(input.files).forEach(file => {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          const imgWrapper = document.createElement("div");
+          imgWrapper.className = "preview-item";
+          imgWrapper.appendChild(img);
+          preview.appendChild(imgWrapper);
+        });
+      });
+      
+      wrapper.appendChild(label);
+      wrapper.appendChild(input);
+      wrapper.appendChild(preview);
+    } else {
+      wrapper.appendChild(label);
+      wrapper.appendChild(input);
+    }
+    
     questionsDiv.appendChild(wrapper);
   });
 }
@@ -123,20 +151,36 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.getElementById("submitBtn").addEventListener("click", async () => {
-    const typeSelect = document.getElementById("type")
-    const answers = {}
+    const typeSelect = document.getElementById("type");
+    const answers = {};
+    const formData = new FormData();
+    
     document.querySelectorAll(".question").forEach(q => {
-      answers[q.name] = q.value
-    })
-    const response = await fetch("/api/webhook", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: typeSelect.value, answers })
-    })
-    if (response.ok) {
-      alert("Application sent")
-    } else {
-      alert("Failed to send application")
+      if (q.type === "file") {
+        Array.from(q.files).forEach(file => {
+          formData.append("images", file);
+        });
+      } else {
+        answers[q.name] = q.value;
+      }
+    });
+    
+    formData.append("type", typeSelect.value);
+    formData.append("answers", JSON.stringify(answers));
+    
+    try {
+      const response = await fetch("/api/webhook", {
+        method: "POST",
+        body: formData
+      });
+      
+      if (response.ok) {
+        alert("Application sent successfully!");
+      } else {
+        throw new Error("Failed to send application");
+      }
+    } catch (error) {
+      alert("Error: " + error.message);
     }
   })
 })
