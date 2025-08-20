@@ -52,6 +52,50 @@ function loadUser() {
   }
 }
 
+const FORM_QUESTIONS = {
+  ban_appeal: [
+    { name: "reason", label: "Why were you banned?", type: "text" },
+    { name: "duration", label: "How long have you been banned?", type: "text" },
+    { name: "reflection", label: "What have you learned from this experience?", type: "textarea" },
+    { name: "prevention", label: "How will you prevent this from happening again?", type: "textarea" }
+  ],
+  custom_channel: [
+    { name: "channel_name", label: "Desired channel name", type: "text" },
+    { name: "channel_topic", label: "Channel topic/purpose", type: "text" },
+    { name: "channel_description", label: "Detailed description of your channel", type: "textarea" },
+    { name: "activity_plans", label: "How will you keep the channel active?", type: "textarea" }
+  ],
+  mod_app: [
+    { name: "age", label: "How old are you?", type: "text" },
+    { name: "timezone", label: "What is your timezone?", type: "text" },
+    { name: "experience", label: "Previous moderation experience", type: "textarea" },
+    { name: "availability", label: "How many hours per week can you dedicate?", type: "text" },
+    { name: "motivation", label: "Why do you want to be a moderator?", type: "textarea" }
+  ]
+};
+
+function renderQuestions(type) {
+  const questionsDiv = document.getElementById("questions");
+  questionsDiv.innerHTML = "";
+  
+  FORM_QUESTIONS[type].forEach(question => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "question-wrapper";
+    
+    const label = document.createElement("label");
+    label.textContent = question.label;
+    
+    const input = document.createElement(question.type === "textarea" ? "textarea" : "input");
+    input.type = question.type === "textarea" ? undefined : question.type;
+    input.name = question.name;
+    input.className = "question";
+    
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    questionsDiv.appendChild(wrapper);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   loadUser()
 
@@ -68,6 +112,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.cookie = "user=; Path=/; Max-Age=0"
     location.reload()
   })
+
+  const typeSelect = document.getElementById("type");
+  if (typeSelect) {
+    renderQuestions(typeSelect.value);
+    
+    typeSelect.addEventListener("change", (e) => {
+      renderQuestions(e.target.value);
+    });
+  }
 
   document.getElementById("submitBtn").addEventListener("click", async () => {
     const typeSelect = document.getElementById("type")
