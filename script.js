@@ -90,6 +90,9 @@ function renderQuestions(type) {
     input.className = "question";
     
     if (question.type === "file") {
+      input.multiple = true;
+      input.accept = "image/*";
+      
       const fileWrapper = document.createElement("div");
       fileWrapper.className = "file-upload-wrapper";
 
@@ -97,8 +100,8 @@ function renderQuestions(type) {
       dropZone.className = "file-drop-zone";
       dropZone.innerHTML = `
         <i class="fas fa-cloud-upload-alt"></i>
-        <p>Drag and drop images here</p>
-        <small>or click to select files</small>
+        <p>Drag and drop up to 10 images here</p>
+        <small>or click to select multiple files</small>
       `;
 
       input.style.display = "none";
@@ -220,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     document.querySelectorAll(".question").forEach(q => {
       if (q.type === "file") {
-        Array.from(q.files).forEach(file => {
+        Array.from(q.files).forEach((file, index) => {
           formData.append("images", file);
         });
       } else {
@@ -237,11 +240,13 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData
       });
       
-      if (response.ok) {
-        alert("Application sent successfully!");
-      } else {
-        throw new Error("Failed to send application");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to send application");
       }
+      
+      alert("Application sent successfully!");
+      location.reload();
     } catch (error) {
       alert("Error: " + error.message);
     }
