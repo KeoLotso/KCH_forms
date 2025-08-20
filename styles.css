@@ -1,75 +1,80 @@
 body {
-    margin: 0;
-    background: #0b0f14;
-    color: #e5e7eb;
-    font-family: sans-serif;
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 40px 20px;
 }
 
-.container {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px
+button {
+  background-color: #7289da;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
 }
 
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px
+button:hover {
+  background-color: #5b6eae;
 }
 
-.card {
-    background: #121823;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px
+input, select, textarea {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 5px;
+  padding: 8px;
+  margin: 5px 0 15px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.label {
-    display: block;
-    margin-bottom: 8px;
-    color: #9aa3af
-}
-
-.input,
-select,
 textarea {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    background: #0b1220;
-    color: #fff;
-    border: 1px solid #1f2937;
-    margin-bottom: 10px
+  resize: vertical;
 }
 
-.btn {
-    padding: 10px 14px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #4f46e5;
-    color: white
+#app, #auth {
+  width: 100%;
+  max-width: 500px;
+  background-color: #1b1b1b;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  display: none;
 }
 
-.btn.primary {
-    background: #7c3aed
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.status {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #9aa3af
+#userInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
-.user {
-    display: flex;
-    align-items: center;
-    gap: 10px
+#avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
 }
 
-.avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%
+label {
+  font-weight: 500;
+}
+
+select {
+  cursor: pointer;
 }
