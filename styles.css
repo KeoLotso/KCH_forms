@@ -143,11 +143,54 @@ select {
   border-color: #5865F2;
 }
 
+.file-upload-wrapper {
+  position: relative;
+  margin-top: 10px;
+}
+
+.file-drop-zone {
+  width: 100%;
+  min-height: 200px;
+  border: 3px dashed #404040;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #2a2a2a;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.file-drop-zone.drag-over {
+  border-color: #5865F2;
+  background: #2f2f2f;
+}
+
+.file-drop-zone i {
+  font-size: 48px;
+  color: #5865F2;
+  margin-bottom: 10px;
+}
+
+.file-drop-zone p {
+  margin: 0;
+  color: #e0e0e0;
+  text-align: center;
+}
+
+.file-drop-zone small {
+  color: #808080;
+  margin-top: 5px;
+}
+
 .image-preview {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
 }
 
 .preview-item {
@@ -167,7 +210,32 @@ select {
   object-fit: cover;
 }
 
+.preview-item .remove-image {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.preview-item:hover .remove-image {
+  opacity: 1;
+}
+
+.preview-item .remove-image i {
+  color: #fff;
+  font-size: 14px;
+}
+
 .preview-item:hover {
-  transform: scale(1.05);
-  transition: transform 0.2s ease;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

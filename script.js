@@ -90,31 +90,94 @@ function renderQuestions(type) {
     input.className = "question";
     
     if (question.type === "file") {
-      input.multiple = question.multiple;
-      input.accept = "image/*";
+      const fileWrapper = document.createElement("div");
+      fileWrapper.className = "file-upload-wrapper";
+
+      const dropZone = document.createElement("div");
+      dropZone.className = "file-drop-zone";
+      dropZone.innerHTML = `
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Drag and drop images here</p>
+        <small>or click to select files</small>
+      `;
+
+      input.style.display = "none";
       const preview = document.createElement("div");
       preview.className = "image-preview";
-      
+
+      const uploadedFiles = new Set();
+
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("drag-over");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("drag-over");
+      });
+
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("drag-over");
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"));
+        handleFiles(files);
+      });
+
+      dropZone.addEventListener("click", () => input.click());
+
       input.addEventListener("change", () => {
-        preview.innerHTML = "";
-        if (input.files.length > 10) {
+        const files = Array.from(input.files).filter(f => f.type.startsWith("image/"));
+        handleFiles(files);
+      });
+
+      function handleFiles(files) {
+        if (uploadedFiles.size + files.length > 10) {
           alert("Maximum 10 images allowed");
-          input.value = "";
           return;
         }
-        Array.from(input.files).forEach(file => {
-          const img = document.createElement("img");
-          img.src = URL.createObjectURL(file);
-          const imgWrapper = document.createElement("div");
-          imgWrapper.className = "preview-item";
-          imgWrapper.appendChild(img);
-          preview.appendChild(imgWrapper);
+
+        files.forEach(file => {
+          if (!uploadedFiles.has(file)) {
+            uploadedFiles.add(file);
+            const previewItem = createPreviewItem(file);
+            preview.appendChild(previewItem);
+          }
         });
-      });
-      
+
+        const dataTransfer = new DataTransfer();
+        uploadedFiles.forEach(file => dataTransfer.items.add(file));
+        input.files = dataTransfer.files;
+      }
+
+      function createPreviewItem(file) {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "preview-item";
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+
+        const removeBtn = document.createElement("div");
+        removeBtn.className = "remove-image";
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          uploadedFiles.delete(file);
+          itemDiv.remove();
+          const dataTransfer = new DataTransfer();
+          uploadedFiles.forEach(file => dataTransfer.items.add(file));
+          input.files = dataTransfer.files;
+        });
+
+        itemDiv.appendChild(img);
+        itemDiv.appendChild(removeBtn);
+        return itemDiv;
+      }
+
+      fileWrapper.appendChild(dropZone);
+      fileWrapper.appendChild(input);
+      fileWrapper.appendChild(preview);
       wrapper.appendChild(label);
-      wrapper.appendChild(input);
-      wrapper.appendChild(preview);
+      wrapper.appendChild(fileWrapper);
     } else {
       wrapper.appendChild(label);
       wrapper.appendChild(input);
