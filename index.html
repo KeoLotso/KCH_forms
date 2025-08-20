@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KCH Applications etc.</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">Application Portal</div>
+      <div class="user" id="userBox"></div>
+    </header>
+
+    <main class="content" id="mainContent" style="display:none">
+      <section class="card">
+        <label>KCH Applications etc.</label>
+        <select id="typeSelect" class="input">
+          <option value="ban_appeal">Ban Appeal</option>
+          <option value="custom_channel">Custom Channel Apps</option>
+          <option value="mod_app">Moderator Apps</option>
+        </select>
+      </section>
+      <section class="card">
+        <form id="form" class="form"></form>
+      </section>
+      <section class="card">
+        <button id="submitBtn" class="btn primary">Send</button>
+        <div id="status" class="status"></div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
