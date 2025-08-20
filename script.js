@@ -17,21 +17,33 @@ function loadUser() {
     return
   }
 
-  const user = JSON.parse(userCookie)
-  authDiv.style.display = "none"
-  appDiv.style.display = "block"
-  document.getElementById("username").innerText = user.username + "#" + user.discriminator
-  document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+  try {
+    const user = JSON.parse(userCookie)
+    authDiv.style.display = "none"
+    appDiv.style.display = "block"
+    
+    document.getElementById("username").innerText = user.global_name || user.username
+    document.getElementById("avatar").src = user.avatar 
+        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` 
+        : 'https://cdn.discordapp.com/embed/avatars/0.png'
+  } catch (error) {
+    console.error("Error parsing user cookie:", error)
+    authDiv.style.display = "block"
+    appDiv.style.display = "none"
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   loadUser()
 
-  document.getElementById("loginBtn").addEventListener("click", () => {
-    const redirectUri = `${window.location.origin}/api/oauth`
-    const url = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify`
-    window.location.href = url
-  })
+  const loginBtn = document.getElementById("loginBtn")
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+      const redirectUri = `${window.location.origin}/api/oauth`
+      const url = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify`
+      window.location.href = url
+    })
+  }
 
   document.getElementById("logoutBtn").addEventListener("click", () => {
     document.cookie = "user=; Path=/; Max-Age=0"

@@ -1,40 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>KCH Applications etc.</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>KCH Applications etc.</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="auth">
-    <h2>Login Required</h2>
-    <button id="loginBtn">Login with Discord</button>
-  </div>
-  <div class="container">
-    <header class="topbar">
-      <div class="brand">KCH Applications etc.</div>
-      <div class="user" id="userBox"></div>
-    </header>
+    <div id="auth">
+        <h2>Login Required</h2>
+        <button id="loginBtn">Login with Discord</button>
+    </div>
 
-    <main class="content" id="mainContent" style="display:none">
-      <section class="card">
-        <label>KCH Applications etc.</label>
-        <select id="typeSelect" class="input">
-          <option value="ban_appeal">Ban Appeal</option>
-          <option value="custom_channel">Custom Channel Apps</option>
-          <option value="mod_app">Moderator Apps</option>
-        </select>
-      </section>
-      <section class="card">
-        <form id="form" class="form"></form>
-      </section>
-      <section class="card">
-        <button id="submitBtn" class="btn primary">Send</button>
-        <div id="status" class="status"></div>
-      </section>
-    </main>
-  </div>
-  <script src="script.js"></script>
+    <div id="app">
+        <div id="userInfo">
+            <img id="avatar" src="" alt="User avatar">
+            <span id="username"></span>
+            <button id="logoutBtn">Logout</button>
+        </div>
+
+        <div class="form-container">
+            <select id="type">
+                <option value="ban_appeal">Ban Appeal</option>
+                <option value="custom_channel">Custom Channel Apps</option>
+                <option value="mod_app">Moderator Apps</option>
+            </select>
+            
+            <div id="questions"></div>
+            
+            <button id="submitBtn">Submit</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
