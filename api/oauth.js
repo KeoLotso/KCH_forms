@@ -1,40 +1,41 @@
-import fetch from "node-fetch";
-
 export default async function handler(req, res) {
-  const { CLIENT_ID, CLIENT_SECRET } = process.env;
-  const redirectUri = `${req.headers["x-forwarded-proto"] || "https"}://${req.headers.host}/api/oauth`;
+  if (req.method !== "GET") return res.status(405).send("Method Not Allowed")
 
-  if (req.query.code) {
-    const body = new URLSearchParams({
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      grant_type: "authorization_code",
-      code: req.query.code,
-      redirect_uri: redirectUri,
-    });
+  const code = req.query.code
+  if (!code) return res.status(400).send("Missing code")
 
-    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+  const redirectUri = `${req.headers["x-forwarded-proto"] || "https"}://${req.headers.host}/api/oauth`
+
+  try {
+    const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
-    });
-    const token = await tokenRes.json();
+      body: new URLSearchParams({
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: redirectUri
+      })
+    })
 
-    if (!token.access_token) return res.status(400).send("OAuth Failed");
+    const tokenData = await tokenResponse.json()
+    if (tokenData.error) return res.status(400).json(tokenData)
 
-    const userRes = await fetch("https://discord.com/api/users/@me", {
-      headers: { Authorization: `Bearer ${token.access_token}` },
-    });
-    const user = await userRes.json();
+    const userResponse = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` }
+    })
 
-    return res.redirect(`/?token=${Buffer.from(JSON.stringify(user)).toString("base64")}`);
-  } else {
-    const params = new URLSearchParams({
-      client_id: CLIENT_ID,
-      redirect_uri: redirectUri,
-      response_type: "code",
-      scope: "identify",
-    });
-    return res.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
+    const user = await userResponse.json()
+
+    res.setHeader(
+      "Set-Cookie",
+      `user=${encodeURIComponent(JSON.stringify(user))}; Path=/; HttpOnly; Secure; SameSite=Lax`
+    )
+
+    res.redirect("/")
+  } catch (err) {
+    console.error(err)
+    res.status(500).send("OAuth failed")
   }
 }
